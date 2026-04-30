@@ -22,10 +22,8 @@ from torchvision.transforms import (
     Normalize,
 )
 
-# ==========================================
+ 
 # 1. 환경 및 데이터셋 설정
-# ==========================================
-# Kaggle 데이터셋이 있는 폴더 경로 (현재 디렉토리에 맞게 수정하세요)
 dataset_path = "./PokemonData" 
 
 print("데이터셋을 로드하는 중...")
@@ -43,9 +41,8 @@ label2id = {c: str(i) for i, c in enumerate(labels)}
 num_labels = len(labels)
 print(f"총 {num_labels}개의 포켓몬 클래스를 학습합니다.")
 
-# ==========================================
+ 
 # 2. 이미지 전처리 및 증강 (Data Augmentation)
-# ==========================================
 # Base Model (분류 헤드가 없는 in21k 모델 사용)
 model_name = "google/vit-base-patch16-224-in21k"
 processor = ViTImageProcessor.from_pretrained(model_name)
@@ -88,9 +85,8 @@ def apply_val_transforms(example_batch):
 train_ds.set_transform(apply_train_transforms)
 test_ds.set_transform(apply_val_transforms)
 
-# ==========================================
+
 # 3. 모델 로드 및 평가 지표 설정
-# ==========================================
 print("모델을 로드하는 중...")
 model = ViTForImageClassification.from_pretrained(
     model_name,
@@ -124,15 +120,13 @@ def collate_fn(batch):
         "labels": torch.tensor([x["label"] for x in batch])
     }
 
-# 실험 이름을 지정하세요. (예: "vit_lora", "vit_full", "resnet50" 등)
 EXPERIMENT_NAME = "vit_full" 
-
 training_args = TrainingArguments(
     output_dir=f"./results_{EXPERIMENT_NAME}",
     remove_unused_columns=False,
     eval_strategy="epoch",       # 매 에폭마다 평가 수행
     save_strategy="epoch",       # 매 에폭마다 모델 체크포인트 저장
-    learning_rate=5e-5,          # LoRA/QLoRA는 5e-4, Full/ResNet은 5e-5 권장
+    learning_rate=5e-5,          # LoRA/QLoRA는 5e-4, Full/ResNet은 5e-5
     per_device_train_batch_size=32,
     per_device_eval_batch_size=32,
     num_train_epochs=50,         # 총 50 Epoch까지 논스톱 학습
@@ -156,9 +150,9 @@ trainer = Trainer(
 print(f"=== [{EXPERIMENT_NAME}] 50 Epoch 자동 학습 및 평가 시작 ===")
 trainer.train()
 
-# ==========================================
+ 
 # 5. 실험 결과 추출 및 CSV 자동 저장
-# ==========================================
+ 
 print("=== 학습 내역(History) 추출 및 저장 중 ===")
 
 # Trainer의 log_history에는 학습/평가 때마다 기록된 모든 지표가 리스트 형태로 들어있습니다.
@@ -177,7 +171,7 @@ for log in history:
 # 평가(Eval) 로그를 데이터프레임으로 변환
 df_eval = pd.DataFrame(eval_logs)
 
-# 5, 10, 15 ... 50 에폭의 데이터만 필터링 (원하신다면 모든 에폭을 저장해도 무방합니다)
+# 5, 10, 15 ... 50 에폭의 데이터만 필터링
 # Epoch 값이 소수점으로 떨어질 수 있으므로 반올림 후 필터링
 df_eval['epoch'] = df_eval['epoch'].round(0)
 df_eval_filtered = df_eval[df_eval['epoch'] % 5 == 0].copy()
@@ -193,10 +187,9 @@ df_eval_filtered.to_csv(csv_filename, index=False)
 print(f"✅ 결과가 성공적으로 저장되었습니다: {csv_filename}")
 print(df_eval_filtered.to_string(index=False))
 
-# ==========================================
+
 # 6. 최종 베스트 모델 저장
-# ==========================================
-save_directory = f"./saved_models/best_{EXPERIMENT_NAME}"
+save_directory = f"./saved_model/best_{EXPERIMENT_NAME}"
 os.makedirs(save_directory, exist_ok=True)
 
 model.save_pretrained(save_directory)

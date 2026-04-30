@@ -109,9 +109,9 @@ def collate_fn(batch):
 import pandas as pd
 import json
 
-# ==========================================
+ 
 # 4. 학습 설정 (Epoch 50 설정 및 로깅 강화)
-# ==========================================
+ 
 # 실험 이름을 지정하세요. (예: "vit_lora", "vit_full", "resnet50" 등)
 EXPERIMENT_NAME = "vit_qlora" 
 
@@ -144,9 +144,9 @@ trainer = Trainer(
 print(f"=== [{EXPERIMENT_NAME}] 50 Epoch 자동 학습 및 평가 시작 ===")
 trainer.train()
 
-# ==========================================
+ 
 # 5. 실험 결과 추출 및 CSV 자동 저장
-# ==========================================
+ 
 print("=== 학습 내역(History) 추출 및 저장 중 ===")
 
 # Trainer의 log_history에는 학습/평가 때마다 기록된 모든 지표가 리스트 형태로 들어있습니다.
@@ -181,10 +181,10 @@ df_eval_filtered.to_csv(csv_filename, index=False)
 print(f"✅ 결과가 성공적으로 저장되었습니다: {csv_filename}")
 print(df_eval_filtered.to_string(index=False))
 
-# ==========================================
+ 
 # 6. 최종 베스트 모델 저장
-# ==========================================
-save_directory = f"./saved_models/best_{EXPERIMENT_NAME}"
+ 
+save_directory = f"./saved_model/best_{EXPERIMENT_NAME}"
 os.makedirs(save_directory, exist_ok=True)
 
 model.save_pretrained(save_directory)

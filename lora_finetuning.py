@@ -132,7 +132,7 @@ print(metrics)
 
 
 # 5. 파인튜닝 모델(LoRA 가중치) 최종 저장
-save_directory = "./saved_models/exp2_vit_lora"
+save_directory = "./saved_model/exp2_vit_lora"
 os.makedirs(save_directory, exist_ok=True)
 
 

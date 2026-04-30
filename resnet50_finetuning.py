@@ -119,7 +119,7 @@ metrics = trainer.evaluate(test_ds)
 print(metrics)
 
 # 4. 파인튜닝 모델 최종 저장
-save_directory = "./saved_models/exp4_resnet50_finetuned"
+save_directory = "./saved_model/exp4_resnet50_finetuned"
 os.makedirs(save_directory, exist_ok=True)
 
 model.save_pretrained(save_directory)

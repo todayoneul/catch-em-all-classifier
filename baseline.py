@@ -9,7 +9,6 @@ processor = ViTImageProcessor.from_pretrained(model_name)
 model = ViTForImageClassification.from_pretrained(model_name)
 
 # 2. 테스트할 포켓몬 이미지 경로 설정 (예: 피카츄 이미지)
-# 다운로드 받으신 데이터셋 내의 임의의 이미지 경로를 지정하세요.
 image_path = "./PokemonData/Pikachu/00000000.jpg"
 image = Image.open(image_path).convert("RGB")
 
