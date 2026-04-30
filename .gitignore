@@ -1,0 +1,7 @@
+/PokemonData
+/vit-*
+/resnet50-*
+*.md
+/saved_models
+/results_*
+/saved_model
