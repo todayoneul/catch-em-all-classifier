@@ -7,17 +7,17 @@
 ---
 
 ## 목차 (Table of Contents)
-- [데이터셋 (Dataset)](#-데이터셋-dataset)
-- [연구 및 실험 방법론 (Methodology)](#-연구-및-실험-방법론-methodology)
-  - [1. ViT 전체 미세 조정 (Full Fine-tuning)](#1-vit-전체-미세-조정-full-fine-tuning)
+- [데이터셋 (Dataset)](#데이터셋-dataset)
+- [연구 및 실험 방법론 (Methodology)](#연구-및-실험-방법론-methodology)
+  - [1. ViT Full Fine-tuning](#1-vit-full-fine-tuning)
   - [2. ViT + LoRA (Low-Rank Adaptation)](#2-vit--lora-low-rank-adaptation)
   - [3. ViT + QLoRA (Quantized LoRA)](#3-vit--qlora-quantized-lora)
   - [4. ResNet50 전이 학습 (Transfer Learning)](#4-resnet50-전이-학습-transfer-learning)
-- [데이터 증강 전략 (Data Augmentation)](#-데이터-증강-전략-data-augmentation)
-- [실험 결과 및 분석 (Experimental Results)](#-실험-결과-및-분석-experimental-results)
-- [인터랙티브 웹 데모 (Interactive Web Demo)](#-인터랙티브-웹-데모-interactive-web-demo)
-- [시작하기 (Quick Start)](#-시작하기-quick-start)
-- [결론 및 향후 과제 (Conclusion & Future Work)](#-결론-및-향후-과제-conclusion--future-work)
+- [데이터 증강 전략 (Data Augmentation)](#데이터-증강-전략-data-augmentation)
+- [실험 결과 및 분석 (Experimental Results)](#실험-결과-및-분석-experimental-results)
+- [인터랙티브 웹 데모 (Interactive Web Demo)](#인터랙티브-웹-데모-interactive-web-demo)
+- [시작하기 (Quick Start)](#시작하기-quick-start)
+- [결론 및 향후 과제 (Conclusion & Future Work)](#결론-및-향후-과제-conclusion--future-work)
 
 ---
 
