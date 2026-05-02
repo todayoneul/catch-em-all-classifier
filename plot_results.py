@@ -2,12 +2,10 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# 1. 폴더 및 파일 설정
-# 결과 이미지를 저장할 assets 폴더 생성
+# 1. 설정
 save_dir = "./assets"
 os.makedirs(save_dir, exist_ok=True)
 
-# 실험별 라벨 이름과 실제 생성된 CSV 파일 이름 매핑
 experiments = {
     "ViT Full": "experiment_results_vit_full.csv",
     "ViT LoRA": "experiment_results_vit_lora.csv",
@@ -15,63 +13,59 @@ experiments = {
     "ResNet50": "experiment_results_resnet50.csv"
 }
 
-# 그래프 스타일 설정 (선 색상과 마커 모양)
 colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'] # 파, 주, 초, 빨
-markers = ['o', 's', '^', 'D']
 
-
-# 2. 그래프 그리기 준비 (1행 2열 구조)
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-fig.suptitle('Model Performance Comparison (5~50 Epochs)', fontsize=16, fontweight='bold')
+# 2. 그래프 그리기 (1행 2열 구조)
+# 2개의 그래프가 넉넉히 들어가도록 가로 길이를 20으로 늘립니다.
+fig, (ax_acc, ax_loss) = plt.subplots(1, 2, figsize=(15, 6))
+fig.suptitle('Model Performance & Training Analytics', fontsize=18, fontweight='bold')
 
 data_found = False
 
 for i, (label, filename) in enumerate(experiments.items()):
-    # 파일이 존재하는지 확인 (아직 돌리지 않은 실험은 건너뜀)
     if os.path.exists(filename):
         data_found = True
         df = pd.read_csv(filename)
-        
-        # X축 데이터 (Epoch)
         epochs = df['epoch']
         
-        # 첫 번째 그래프: Accuracy (정확도)
-        ax1.plot(epochs, df['eval_accuracy'], marker=markers[i], color=colors[i], 
-                 linewidth=2, label=label, markersize=6)
+        # 1. Validation Accuracy 그래프 (마커 추가)
+        if 'eval_accuracy' in df.columns:
+            ax_acc.plot(epochs, df['eval_accuracy'], marker='o', color=colors[i], linewidth=2, markersize=5, label=label)
+            
+        # 2. Train & Val Loss 그래프 (실선: Train, 점선: Val)
+        if 'train_loss' in df.columns:
+            ax_loss.plot(epochs, df['train_loss'], color=colors[i], linestyle='-', linewidth=2, alpha=0.6, label=f'{label} (Train)')
+        if 'eval_loss' in df.columns:
+            ax_loss.plot(epochs, df['eval_loss'], color=colors[i], linestyle='--', linewidth=2.5, label=f'{label} (Val)')
         
-        # 두 번째 그래프: Loss (손실 - 낮을수록 정답에 대한 확신이 높음)
-        ax2.plot(epochs, df['eval_loss'], marker=markers[i], color=colors[i], 
-                 linewidth=2, label=label, markersize=6, linestyle='--')
-    else:
-        print(f"경고: {filename} 파일을 찾을 수 없어 그래프에서 제외합니다.")
+
 
 if not data_found:
-    print("❌ 오류: 그릴 수 있는 CSV 데이터가 하나도 없습니다. 학습을 먼저 진행해 주세요.")
+    print("오류: 그릴 수 있는 CSV 데이터를 찾을 수 없습니다.")
     exit()
 
-
 # 3. 그래프 세부 설정 및 꾸미기
+# Accuracy 차트 설정
+ax_acc.set_title('Validation Accuracy', fontsize=14)
+ax_acc.set_xlabel('Epoch', fontsize=12)
+ax_acc.set_ylabel('Accuracy', fontsize=12)
+ax_acc.grid(True, linestyle=':', alpha=0.7)
+ax_acc.legend(fontsize=10, loc='lower right')
 
-# Accuracy 그래프 설정
-ax1.set_title('Validation Accuracy over Epochs', fontsize=14)
-ax1.set_xlabel('Epoch', fontsize=12)
-ax1.set_ylabel('Accuracy', fontsize=12)
-ax1.grid(True, linestyle=':', alpha=0.7)
-ax1.legend(loc='lower right')
+# Loss 차트 설정
+ax_loss.set_title('Training & Validation Loss', fontsize=14)
+ax_loss.set_xlabel('Epoch', fontsize=12)
+ax_loss.set_ylabel('Loss', fontsize=12)
+ax_loss.grid(True, linestyle=':', alpha=0.7)
+ax_loss.legend(fontsize=9, loc='upper right', ncol=2)
 
-# Loss 그래프 설정
-ax2.set_title('Validation Loss over Epochs', fontsize=14)
-ax2.set_xlabel('Epoch', fontsize=12)
-ax2.set_ylabel('Loss', fontsize=12)
-ax2.grid(True, linestyle=':', alpha=0.7)
-ax2.legend(loc='upper right')
 
 plt.tight_layout()
 
-# 4. assets 폴더에 이미지 저장
-output_path = os.path.join(save_dir, "performance_comparison.png")
+# 4. 이미지 저장
+output_path = os.path.join(save_dir, "training_analytics.png")
 plt.savefig(output_path, dpi=300, bbox_inches='tight')
 print(f"그래프가 성공적으로 저장되었습니다: {output_path}")
 
-# 화면에 띄워서 바로 확인
+# 화면에 띄워서 확인
 plt.show()

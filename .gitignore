@@ -5,3 +5,5 @@
 /saved_models
 /results_*
 /saved_model
+
+!readme.md
