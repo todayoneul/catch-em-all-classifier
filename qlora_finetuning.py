@@ -111,8 +111,6 @@ import json
 
  
 # 4. 학습 설정 (Epoch 50 설정 및 로깅 강화)
- 
-# 실험 이름을 지정하세요. (예: "vit_lora", "vit_full", "resnet50" 등)
 EXPERIMENT_NAME = "vit_qlora" 
 
 training_args = TrainingArguments(

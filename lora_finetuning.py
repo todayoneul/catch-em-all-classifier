@@ -1,5 +1,7 @@
 import os
 import torch
+import pandas as pd
+import json
 import numpy as np
 import evaluate
 from datasets import load_dataset
@@ -65,7 +67,7 @@ model = ViTForImageClassification.from_pretrained(
 
 # 3. LoRA 설정 및 PEFT 모델 래핑
 lora_config = LoraConfig(
-    r=16,                       # LoRA Rank (보통 8이나 16을 많이 씁니다)
+    r=16,                       # LoRA Rank
     lora_alpha=16,              # 스케일링 팩터 (보통 r과 같게 하거나 2배로 설정)
     target_modules=["query", "value"], # ViT 어텐션 레이어의 타겟 모듈 이름
     lora_dropout=0.1,           # 과적합 방지용 드롭아웃
@@ -96,21 +98,21 @@ def collate_fn(batch):
         "labels": torch.tensor([x["label"] for x in batch])
     }
 
-
+EXPERIMENT_NAME = "vit_lora" 
 training_args = TrainingArguments(
-    output_dir="./vit-pokemon-lora",
+    output_dir=f"./results_{EXPERIMENT_NAME}",
     remove_unused_columns=False,
-    eval_strategy="epoch",
-    save_strategy="epoch",
-    learning_rate=5e-4,            
+    eval_strategy="epoch",       # 매 에폭마다 평가 수행
+    save_strategy="epoch",       # 매 에폭마다 모델 체크포인트 저장
+    learning_rate=5e-4,          # LoRA/QLoRA는 5e-4, Full/ResNet은 5e-5 권장
     per_device_train_batch_size=32,
     per_device_eval_batch_size=32,
-    num_train_epochs=5,
+    num_train_epochs=50,         # 총 50 Epoch까지 논스톱 학습
     weight_decay=0.01,
-    load_best_model_at_end=True,
+    load_best_model_at_end=True, # 50번 중 가장 성능이 좋았던 모델을 최종적으로 불러옴
     metric_for_best_model="accuracy",
-    logging_dir='./logs_lora',
-    logging_steps=50,
+    logging_dir=f'./logs_{EXPERIMENT_NAME}',
+    logging_steps=10,
 )
 
 trainer = Trainer(
@@ -123,21 +125,51 @@ trainer = Trainer(
     compute_metrics=compute_metrics,
 )
 
-print("=== 2단계: LoRA 학습 시작 ===")
+print(f"=== [{EXPERIMENT_NAME}] 50 Epoch 자동 학습 및 평가 시작 ===")
 trainer.train()
 
-print("=== 2단계: Test Set 최종 평가 ===")
-metrics = trainer.evaluate(test_ds)
-print(metrics)
+ 
+# 5. 실험 결과 추출 및 CSV 자동 저장
+ 
+print("=== 학습 내역(History) 추출 및 저장 중 ===")
 
+history = trainer.state.log_history
 
-# 5. 파인튜닝 모델(LoRA 가중치) 최종 저장
-save_directory = "./saved_model/exp2_vit_lora"
+train_logs = []
+eval_logs = []
+
+# 로그 분리 작업
+for log in history:
+    if 'eval_loss' in log:
+        eval_logs.append(log)
+    elif 'loss' in log: # train_loss
+        train_logs.append(log)
+
+# 평가(Eval) 로그를 데이터프레임으로 변환
+df_eval = pd.DataFrame(eval_logs)
+
+# 5, 10, 15 ... 50 에폭의 데이터만 필터링
+# Epoch 값이 소수점으로 떨어질 수 있으므로 반올림 후 필터링
+df_eval['epoch'] = df_eval['epoch'].round(0)
+df_eval_filtered = df_eval[df_eval['epoch'] % 5 == 0].copy()
+
+# 보기 좋게 컬럼 정리
+columns_to_save = ['epoch', 'eval_loss', 'eval_accuracy', 'eval_precision', 'eval_recall']
+df_eval_filtered = df_eval_filtered[columns_to_save]
+
+# CSV 파일로 저장
+csv_filename = f"experiment_results_{EXPERIMENT_NAME}.csv"
+df_eval_filtered.to_csv(csv_filename, index=False)
+
+print(f"✅ 결과가 성공적으로 저장되었습니다: {csv_filename}")
+print(df_eval_filtered.to_string(index=False))
+
+ 
+# 6. 최종 베스트 모델 저장
+ 
+save_directory = f"./saved_model/best_{EXPERIMENT_NAME}"
 os.makedirs(save_directory, exist_ok=True)
-
 
 model.save_pretrained(save_directory)
 processor.save_pretrained(save_directory)
-
-print(f"=== 2단계 실험 모델 저장 완료 ===")
-print(f"저장 경로: {save_directory} (용량이 매우 작은지 확인해 보세요!)")
+print(f"🏆 가장 성능이 좋았던 베스트 모델이 저장되었습니다: {save_directory}")

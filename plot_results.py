@@ -10,9 +10,9 @@ os.makedirs(save_dir, exist_ok=True)
 # 실험별 라벨 이름과 실제 생성된 CSV 파일 이름 매핑
 experiments = {
     "ViT Full": "experiment_results_vit_full.csv",
-#    "ViT LoRA": "experiment_results_vit_lora.csv",
+    "ViT LoRA": "experiment_results_vit_lora.csv",
     "ViT QLoRA": "experiment_results_vit_qlora.csv",
-#    "ResNet50": "experiment_results_resnet50.csv"
+    "ResNet50": "experiment_results_resnet50.csv"
 }
 
 # 그래프 스타일 설정 (선 색상과 마커 모양)

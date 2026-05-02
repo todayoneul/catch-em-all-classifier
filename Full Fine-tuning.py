@@ -155,7 +155,6 @@ trainer.train()
  
 print("=== 학습 내역(History) 추출 및 저장 중 ===")
 
-# Trainer의 log_history에는 학습/평가 때마다 기록된 모든 지표가 리스트 형태로 들어있습니다.
 history = trainer.state.log_history
 
 train_logs = []
