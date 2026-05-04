@@ -7,10 +7,10 @@ save_dir = "./assets"
 os.makedirs(save_dir, exist_ok=True)
 
 experiments = {
-    "ViT Full": "experiment_results_vit_full.csv",
-    "ViT LoRA": "experiment_results_vit_lora.csv",
-    "ViT QLoRA": "experiment_results_vit_qlora.csv",
-    "ResNet50": "experiment_results_resnet50.csv"
+    "ViT Full": "reports/experiment_results_vit_full.csv",
+    "ViT LoRA": "reports/experiment_results_vit_lora.csv",
+    "ViT QLoRA": "reports/experiment_results_vit_qlora.csv",
+    "ResNet50": "reports/experiment_results_resnet50.csv"
 }
 
 colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'] # 파, 주, 초, 빨

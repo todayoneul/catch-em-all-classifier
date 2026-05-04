@@ -158,7 +158,8 @@ columns_to_save = ['epoch', 'eval_loss', 'eval_accuracy', 'eval_precision', 'eva
 df_eval_filtered = df_eval_filtered[columns_to_save]
 
 # CSV 파일로 저장
-csv_filename = f"experiment_results_{EXPERIMENT_NAME}.csv"
+os.makedirs("reports", exist_ok=True)
+csv_filename = os.path.join("reports", f"experiment_results_{EXPERIMENT_NAME}.csv")
 df_eval_filtered.to_csv(csv_filename, index=False)
 
 print(f"✅ 결과가 성공적으로 저장되었습니다: {csv_filename}")

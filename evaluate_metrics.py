@@ -120,10 +120,11 @@ for model_name, model_path in models_to_evaluate.items():
             y_pred.extend(predictions.cpu().numpy())
 
     # --- D. 통계 지표 CSV 저장 ---
+    os.makedirs("reports", exist_ok=True)
     report_dict = classification_report(y_true, y_pred, target_names=class_names, output_dict=True)
     report_df = pd.DataFrame(report_dict).transpose()
     
-    csv_filename = f"classification_report_{model_name.lower()}.csv"
+    csv_filename = os.path.join("reports", f"classification_report_{model_name.lower()}.csv")
     report_df.to_csv(csv_filename)
     print(f"✅ {csv_filename} 저장 완료!")
 
