@@ -45,10 +45,14 @@ st.markdown("""
 @st.cache_resource(show_spinner=False)
 def load_model(model_path):
     try:
-        is_peft = os.path.exists(os.path.join(model_path, "adapter_config.json"))
+        # 허깅페이스 리포지토리 또는 로컬 경로에서 PEFT 설정 파일 확인
+        try:
+            config = PeftConfig.from_pretrained(model_path)
+            is_peft = True
+        except:
+            is_peft = False
         
         if is_peft:
-            config = PeftConfig.from_pretrained(model_path)
             base_model_name = config.base_model_name_or_path
             
             try:
@@ -56,24 +60,33 @@ def load_model(model_path):
             except:
                 processor = AutoImageProcessor.from_pretrained(base_model_name)
             
-            # LoRA 모델을 위해 Full 모델의 이름표(config.json) 빌려오기
+            # 1. 포켓몬 분류는 무조건 150개의 클래스입니다.
+            num_labels = 150
+            
+            # 2. 라벨 매핑 딕셔너리 구성 (직접 생성하여 충돌 방지)
+            # 허깅페이스에서 Base Model의 config(2개 라벨)를 그대로 가져오면 충돌하므로
+            # 여기서는 150개의 포켓몬 라벨을 강제로 주입합니다.
             try:
+                # 로컬에 저장된 Full FT 모델의 config가 있다면 가장 완벽한 포켓몬 이름 딕셔너리 사용
                 config_path = "./saved_model/best_vit_full/config.json"
                 with open(config_path, "r", encoding="utf-8") as f:
                     full_config = json.load(f)
-                    id2label = full_config["id2label"]
+                    id2label = {int(k): v for k, v in full_config["id2label"].items()}
                     label2id = full_config["label2id"]
-            except Exception as e:
-                id2label = {str(i): f"LABEL_{i}" for i in range(150)}
-                label2id = {f"LABEL_{i}": str(i) for i in range(150)}
+            except Exception:
+                # 파일이 없을 경우 LABEL_0 ~ LABEL_149 형태로 강제 생성 (개수 불일치 방지)
+                id2label = {i: f"LABEL_{i}" for i in range(num_labels)}
+                label2id = {f"LABEL_{i}": i for i in range(num_labels)}
 
+            # 3. Base 모델을 로드할 때 반드시 num_labels를 명시해야 classifier 헤드 사이즈가 150으로 초기화됩니다.
             base_model = AutoModelForImageClassification.from_pretrained(
                 base_model_name,
-                num_labels=150,     
+                num_labels=num_labels,     
                 id2label=id2label,  
                 label2id=label2id,
                 ignore_mismatched_sizes=True
             )
+            # 4. 150 사이즈로 맞춰진 Base 모델에 LoRA 가중치 결합
             model = PeftModel.from_pretrained(base_model, model_path)
             
         else:
@@ -112,12 +125,12 @@ def get_pokemon_data(pokemon_name):
 
 
 MODEL_PATHS = {
-    "ViT Full Fine-tuning": "your-username/pokemon-vit-full",
-    "ViT + LoRA": "your-username/pokemon-vit-lora",
-    "ViT + QLoRA (4-bit)": "your-username/pokemon-vit-qlora",
-    "ResNet50": "your-username/pokemon-resnet50",
-    "ConvNeXt": "your-username/pokemon-convnext",
-    "Swin Transformer": "your-username/pokemon-swin"
+    "ViT Full Fine-tuning": "gyann/pokemon-vit-full",
+    "ViT + LoRA": "gyann/pokemon-vit-lora",
+    "ViT + QLoRA (4-bit)": "gyann/pokemon-vit-qlora",
+    "ResNet50": "gyann/pokemon-resnet50",
+    "ConvNeXt": "gyann/pokemon-convnext",
+    "Swin Transformer": "gyann/pokemon-swin"
 }
 
 # 5. 설정 및 입력 영역 (깔끔한 컨테이너 UI)

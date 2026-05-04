@@ -8,5 +8,5 @@
 *.zip
 .DS_Store
 __pycache__
-
+*.mp4
 !readme.md
