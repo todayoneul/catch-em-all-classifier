@@ -112,12 +112,12 @@ def get_pokemon_data(pokemon_name):
 
 
 MODEL_PATHS = {
-    "ViT Full Fine-tuning": "./saved_model/best_vit_full",
-    "ViT + LoRA": "./saved_model/best_vit_lora",
-    "ViT + QLoRA (4-bit)": "./saved_model/best_vit_qlora",
-    "ResNet50": "./saved_model/best_resnet50_pokemon",
-    "ConvNeXt": "./saved_model/best_convnext",
-    "Swin Transformer": "./saved_model/best_swin"
+    "ViT Full Fine-tuning": "your-username/pokemon-vit-full",
+    "ViT + LoRA": "your-username/pokemon-vit-lora",
+    "ViT + QLoRA (4-bit)": "your-username/pokemon-vit-qlora",
+    "ResNet50": "your-username/pokemon-resnet50",
+    "ConvNeXt": "your-username/pokemon-convnext",
+    "Swin Transformer": "your-username/pokemon-swin"
 }
 
 # 5. 설정 및 입력 영역 (깔끔한 컨테이너 UI)

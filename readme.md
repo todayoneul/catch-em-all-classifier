@@ -150,6 +150,43 @@ pip install -r requirements.txt
 # 4. Streamlit 데모 앱 실행
 streamlit run app.py
 ```
+## 모델 가중치 다운로드 및 사용 방법 (Hugging Face Hub)
+
+본 프로젝트의 학습된 최종 모델 가중치 파일들(`saved_model` 디렉토리)은 용량이 커서 GitHub 레포지토리에 직접 포함되어 있지 않습니다. 대신 **Hugging Face Model Hub**를 통해 모델을 손쉽게 다운로드하거나 웹 데모(app.py)에서 직접 로드하여 사용할 수 있습니다.
+
+### 1. 허깅페이스에서 직접 다운로드 받아 로컬에 저장하기
+Hugging Face CLI를 사용하여 로컬의 `saved_model` 디렉토리로 모델을 다운로드 받는 방법입니다.
+
+```bash
+# Hugging Face CLI 설치
+pip install -U "huggingface_hub[cli]"
+
+# 모델 폴더 다운로드 예시 (ResNet50 모델)
+huggingface-cli download your-username/pokemon-resnet50 --local-dir ./saved_model/best_resnet50_pokemon
+
+# ViT Full Fine-tuning 모델 다운로드
+huggingface-cli download your-username/pokemon-vit-full --local-dir ./saved_model/best_vit_full
+```
+*(위 명령어의 `your-username`을 실제 모델이 업로드된 계정 이름으로 변경해야 합니다.)*
+
+### 2. 코드(app.py)에서 허깅페이스 리포지토리 직접 참조하기
+로컬 폴더에 다운로드 받지 않고, `app.py` 내부의 모델 경로를 허깅페이스 리포지토리 이름으로 변경하면 Transformers 라이브러리가 런타임에 자동으로 가중치를 다운로드하고 캐싱합니다.
+
+`app.py` 파일 내의 `MODEL_PATHS` 딕셔너리를 아래와 같이 수정하세요.
+
+```python
+MODEL_PATHS = {
+    "ViT Full Fine-tuning": "your-username/pokemon-vit-full",
+    "ViT + LoRA": "your-username/pokemon-vit-lora",
+    "ViT + QLoRA (4-bit)": "your-username/pokemon-vit-qlora",
+    "ResNet50": "your-username/pokemon-resnet50",
+    "ConvNeXt": "your-username/pokemon-convnext",
+    "Swin Transformer": "your-username/pokemon-swin"
+}
+```
+
+---
+
 ## 결론 및 향후 과제 (Conclusion & Future Work)
 ### 결론
 이 프로젝트는 최신 딥러닝 기법이 실질적인 이미지 분류 문제에 어떻게 성공적으로 적용될 수 있는지 명확하게 보여줍니다. **전통적인 CNN 아키텍처와 최첨단 Vision Transformer를 직관적으로 비교함**으로써 각 모델의 장단점을 명확히 파악할 수 있었습니다. 특히, 자원 제약이 있는 환경에서도 **LoRA와 QLoRA 같은 방법론을 통해 무거운 대형 모델을 맞춤형 데이터셋에 완벽하게 적응시킬 수 있음**을 입증했습니다.
