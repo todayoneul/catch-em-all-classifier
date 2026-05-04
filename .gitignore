@@ -6,5 +6,5 @@
 /results_*
 /saved_model
 *.zip
-
+.DS_Store
 !readme.md
