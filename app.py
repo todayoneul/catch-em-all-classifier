@@ -3,7 +3,16 @@ import torch
 import requests
 import os
 import json
+import warnings
+
+# 각종 경고 메시지 완벽 차단을 위한 환경변수 설정 (transformers 임포트 전 실행)
+os.environ["TRANSFORMERS_NO_ADVISORY_WARNINGS"] = "1"
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+warnings.filterwarnings("ignore")
+
 from transformers import AutoImageProcessor, AutoModelForImageClassification, AutoConfig
+import transformers
+transformers.logging.set_verbosity_error()
 from peft import PeftModel, PeftConfig
 from PIL import Image
 import torch.nn.functional as F
