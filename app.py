@@ -38,7 +38,6 @@ st.markdown("""
 </style>
 <div class="main-header">
     <h1>Pokemon Classifier</h1>
-    <p>AI(ViT, ResNet)를 통해 포켓몬을 식별하고 도감 정보를 확인하세요 🐾</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -276,3 +275,48 @@ if image_to_process is not None:
                     m_prefix, m_name, m_proc, m_model, m_dev = active_models[0]
                     with st.spinner('분석 중...'):
                         predict_and_display(m_prefix, m_name, m_proc, m_model, m_dev, image_to_process)
+
+# 8. 모델 아키텍처 정보 UI (최하단 배치)
+ARCHITECTURE_INFO = {
+    "ViT Full Fine-tuning": {
+        "title": "Vision Transformer (ViT) - Full FT",
+        "desc": "이미지를 16x16 픽셀 패치(Patch)로 나누어 처리합니다. 이미지 전체의 **전역적 문맥(Global Context)** 을 파악하는 데 뛰어나며, 모든 가중치를 재학습하여 최고 성능을 도출하지만 연산 비용이 가장 큽니다."
+    },
+    "ViT + LoRA": {
+        "title": "ViT with LoRA (Low-Rank Adaptation)",
+        "desc": "거대한 원본 모델을 얼려두고(Freeze), 핵심 연산층에 아주 얇은 **학습 가능한 우회로(저랭크 행렬)** 를 덧붙입니다. 단 1%의 파라미터만 학습하여 비용을 극적으로 낮추면서도 Full FT와 유사한 성능을 냅니다."
+    },
+    "ViT + QLoRA (4-bit)": {
+        "title": "ViT with QLoRA (Quantized LoRA)",
+        "desc": "LoRA에서 한 발 더 나아가, 원본 모델을 **4-bit 정밀도** 로 압축(Quantization)하여 메모리에 적재합니다. VRAM이 매우 부족한 환경에서도 대규모 모델을 튜닝할 수 있게 하는 최적화 기법입니다."
+    },
+    "ResNet50": {
+        "title": "ResNet50 (Baseline CNN)",
+        "desc": "합성곱(Convolution) 필터를 겹쳐 이미지의 **국소적 패턴(Local Feature)** 을 찾아내는 전통의 강자입니다. 잔차 연결(Residual Connection)로 깊은 신경망의 학습 안정성을 보장합니다."
+    },
+    "ConvNeXt": {
+        "title": "ConvNeXt (Modernized CNN)",
+        "desc": "트랜스포머의 설계 철학(큰 커널, LayerNorm, GELU 등)을 역으로 CNN에 도입한 **'모던 CNN'** 입니다. CNN의 지역적 귀납적 편향을 유지하면서도 트랜스포머급 성능을 냅니다."
+    },
+    "Swin Transformer": {
+        "title": "Swin Transformer (Hierarchical ViT)",
+        "desc": "CNN처럼 작은 영역(Window)부터 점점 넓은 영역으로 **계층적(Hierarchical)** 으로 병합하며 학습하는 트랜스포머입니다. ViT가 놓치기 쉬운 미세한 디테일 구분에 강합니다."
+    }
+}
+
+st.markdown("---")
+st.markdown("#### 🧠 선택된 아키텍처 알아보기")
+if compare_models:
+    col_info1, col_info2 = st.columns(2)
+    with col_info1:
+        with st.expander(f"{model_name_a} 구조", expanded=False):
+            info = ARCHITECTURE_INFO.get(model_name_a, {"title": model_name_a, "desc": "설명이 준비되지 않았습니다."})
+            st.markdown(f"**{info['title']}**\n\n{info['desc']}")
+    with col_info2:
+        with st.expander(f"{model_name_b} 구조", expanded=False):
+            info = ARCHITECTURE_INFO.get(model_name_b, {"title": model_name_b, "desc": "설명이 준비되지 않았습니다."})
+            st.markdown(f"**{info['title']}**\n\n{info['desc']}")
+else:
+    with st.expander(f"{model_name} 구조", expanded=False):
+        info = ARCHITECTURE_INFO.get(model_name, {"title": model_name, "desc": "설명이 준비되지 않았습니다."})
+        st.markdown(f"**{info['title']}**\n\n{info['desc']}")
