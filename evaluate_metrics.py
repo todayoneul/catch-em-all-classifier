@@ -20,7 +20,9 @@ models_to_evaluate = {
     "ResNet50": "./saved_model/best_resnet50_pokemon",
     "ViT_Full": "./saved_model/best_vit_full",
     "ViT_LoRA": "./saved_model/best_vit_lora",
-    "ViT_QLoRA": "./saved_model/best_vit_qlora"
+    "ViT_QLoRA": "./saved_model/best_vit_qlora",
+    "ConvNeXt": "./saved_model/best_convnext",
+    "Swin": "./saved_model/best_swin"
 }
 
 dataset_path = "./PokemonData"

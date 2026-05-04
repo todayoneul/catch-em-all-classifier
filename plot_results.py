@@ -10,10 +10,12 @@ experiments = {
     "ViT Full": "reports/experiment_results_vit_full.csv",
     "ViT LoRA": "reports/experiment_results_vit_lora.csv",
     "ViT QLoRA": "reports/experiment_results_vit_qlora.csv",
-    "ResNet50": "reports/experiment_results_resnet50.csv"
+    "ResNet50": "reports/experiment_results_resnet50.csv",
+    "ConvNeXt": "reports/experiment_results_convnext.csv",
+    "Swin": "reports/experiment_results_swin.csv"
 }
 
-colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'] # 파, 주, 초, 빨
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'] # 파, 주, 초, 빨, 보, 갈
 
 # 2. 그래프 그리기 (1행 2열 구조)
 # 2개의 그래프가 넉넉히 들어가도록 가로 길이를 20으로 늘립니다.

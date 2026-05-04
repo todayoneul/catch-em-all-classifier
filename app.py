@@ -116,7 +116,9 @@ MODEL_PATHS = {
     "ViT Full Fine-tuning": "./saved_model/best_vit_full",
     "ViT + LoRA": "./saved_model/best_vit_lora",
     "ViT + QLoRA (4-bit)": "./saved_model/best_vit_qlora",
-    "ResNet50": "./saved_model/best_resnet50_pokemon"
+    "ResNet50": "./saved_model/best_resnet50_pokemon",
+    "ConvNeXt": "./saved_model/best_convnext",
+    "Swin Transformer": "./saved_model/best_swin"
 }
 
 # 5. 설정 및 입력 영역 (깔끔한 컨테이너 UI)
