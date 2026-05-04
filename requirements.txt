@@ -1,0 +1,11 @@
+streamlit
+torch
+transformers
+peft
+pillow
+requests
+datasets
+scikit-learn
+matplotlib
+seaborn
+pandas
