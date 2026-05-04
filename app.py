@@ -3,7 +3,7 @@ import torch
 import requests
 import os
 import json
-from transformers import AutoImageProcessor, AutoModelForImageClassification
+from transformers import AutoImageProcessor, AutoModelForImageClassification, AutoConfig
 from peft import PeftModel, PeftConfig
 from PIL import Image
 import torch.nn.functional as F
@@ -64,8 +64,6 @@ def load_model(model_path):
             num_labels = 150
             
             # 2. 라벨 매핑 딕셔너리 구성 (직접 생성하여 충돌 방지)
-            # 허깅페이스에서 Base Model의 config(2개 라벨)를 그대로 가져오면 충돌하므로
-            # 여기서는 150개의 포켓몬 라벨을 강제로 주입합니다.
             try:
                 # 로컬에 저장된 Full FT 모델의 config가 있다면 가장 완벽한 포켓몬 이름 딕셔너리 사용
                 config_path = "./saved_model/best_vit_full/config.json"
@@ -74,9 +72,15 @@ def load_model(model_path):
                     id2label = {int(k): v for k, v in full_config["id2label"].items()}
                     label2id = full_config["label2id"]
             except Exception:
-                # 파일이 없을 경우 LABEL_0 ~ LABEL_149 형태로 강제 생성 (개수 불일치 방지)
-                id2label = {i: f"LABEL_{i}" for i in range(num_labels)}
-                label2id = {f"LABEL_{i}": i for i in range(num_labels)}
+                try:
+                    # 로컬 파일이 없으면 배포된 허깅페이스 저장소에서 올바른 매핑을 강제로 가져옵니다.
+                    reference_config = AutoConfig.from_pretrained("gyann/pokemon-vit-full")
+                    id2label = {int(k): v for k, v in reference_config.id2label.items()}
+                    label2id = reference_config.label2id
+                except Exception:
+                    # 최후의 수단으로 더미 생성
+                    id2label = {i: f"LABEL_{i}" for i in range(num_labels)}
+                    label2id = {f"LABEL_{i}": i for i in range(num_labels)}
 
             # 3. Base 모델을 로드할 때 반드시 num_labels를 명시해야 classifier 헤드 사이즈가 150으로 초기화됩니다.
             base_model = AutoModelForImageClassification.from_pretrained(
@@ -92,6 +96,15 @@ def load_model(model_path):
         else:
             processor = AutoImageProcessor.from_pretrained(model_path)
             model = AutoModelForImageClassification.from_pretrained(model_path)
+            
+            # 비-PEFT 모델도 config에 이름이 없는 경우(Label_15 등)를 대비해 매핑을 덮어씌웁니다.
+            if getattr(model.config, "id2label", {}).get(0, "") == "LABEL_0" or getattr(model.config, "id2label", {}).get("0", "") == "LABEL_0":
+                try:
+                    reference_config = AutoConfig.from_pretrained("gyann/pokemon-vit-full")
+                    model.config.id2label = {int(k): v for k, v in reference_config.id2label.items()}
+                    model.config.label2id = reference_config.label2id
+                except Exception:
+                    pass
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
         model.to(device)
